@@ -28,3 +28,28 @@ def get_user_year():
         except ValueError:
             print("Por favor, insira um número válido para o ano.")
 
+def download_file(url, destination):
+    """
+    Baixa um arquivo
+    """
+    response = requests.get(url, stream=True)
+    
+    if response.status_code != 200:
+        print(f"Erro ao baixar o arquivo: {response.status_code}")
+        return False
+    
+    total_size = int(response.headers.get('content-length', 0))
+    block_size = 1024  # 1 KB
+    
+    with open(destination, 'wb') as file, tqdm(
+            desc=os.path.basename(destination),
+            total=total_size,
+            unit='B',
+            unit_scale=True,
+            unit_divisor=1024,
+        ) as bar:
+        for data in response.iter_content(block_size):
+            file.write(data)
+            bar.update(len(data))
+    
+    return True
