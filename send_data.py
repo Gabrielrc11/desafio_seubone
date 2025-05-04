@@ -26,7 +26,7 @@ def read_csv(file_path):
     return df
 
 # Função para criar a tabela no PostgreSQL
-def create_table(conn, df):
+def create_table(conn, df, data_type):
     cursor = conn.cursor()
     
     # Gerando os tipos de colunas automaticamente
@@ -41,18 +41,25 @@ def create_table(conn, df):
             pg_type = 'VARCHAR(255)'
         columns_with_types.append(f'"{col}" {pg_type}')
     
-    create_table_sql = f"""
-    CREATE TABLE IF NOT EXISTS exp (
-        {', '.join(columns_with_types)}
-    );
-    """
+    if data_type == 'E':
+        create_table_sql = f"""
+        CREATE TABLE IF NOT EXISTS export_data (
+            {', '.join(columns_with_types)}
+        );
+        """
+    if data_type == 'I':
+        create_table_sql = f"""
+        CREATE TABLE IF NOT EXISTS import_data (
+            {', '.join(columns_with_types)}
+        );
+        """
     
     cursor.execute(create_table_sql)
     conn.commit()
     cursor.close()
 
 # Função para inserir dados no PostgreSQL
-def insert_data(conn, df):
+def insert_data(conn, df, data_type):
     cursor = conn.cursor()
     
     # Preparando os dados para inserção
@@ -61,7 +68,10 @@ def insert_data(conn, df):
     output.seek(0)
     
     # Copiando os dados para o PostgreSQL
-    cursor.copy_from(output, 'exp', null='')
+    if data_type == 'E':
+        cursor.copy_from(output, 'export_data', null='')
+    elif data_type == 'I':
+        cursor.copy_from(output, 'import_data', null='')
     conn.commit()
     cursor.close()
 
@@ -69,6 +79,8 @@ def insert_data(conn, df):
 def main():
     # Substitua pelo conteúdo real do arquivo ou leia de um arquivo real
     file_content = input("Digite o caminho do arquivo CSV: ")
+
+    data_type = input("Os dados são de exportação (E) ou importação (I)? ").strip().upper()
     
     try:
         # Ler o CSV
@@ -80,11 +92,11 @@ def main():
         print("Conexão com PostgreSQL estabelecida!")
         
         # Criar tabela
-        create_table(conn, df)
+        create_table(conn, df, data_type)
         print("Tabela criada ou verificada com sucesso!")
         
         # Inserir dados
-        insert_data(conn, df)
+        insert_data(conn, df, data_type)
         print("Dados inseridos com sucesso!")
         
     except Exception as e:
