@@ -65,3 +65,33 @@ def insert_data(conn, df):
     conn.commit()
     cursor.close()
 
+# Função principal
+def main():
+    # Substitua pelo conteúdo real do arquivo ou leia de um arquivo real
+    file_content = input("Digite o caminho do arquivo CSV: ")
+    
+    try:
+        # Ler o CSV
+        df = read_csv(file_content)
+        print("Dados lidos do CSV com sucesso!")
+        
+        # Conectar ao PostgreSQL
+        conn = psycopg2.connect(**DB_CONFIG)
+        print("Conexão com PostgreSQL estabelecida!")
+        
+        # Criar tabela
+        create_table(conn, df)
+        print("Tabela criada ou verificada com sucesso!")
+        
+        # Inserir dados
+        insert_data(conn, df)
+        print("Dados inseridos com sucesso!")
+        
+    except Exception as e:
+        print(f"Erro: {e}")
+    finally:
+        if 'conn' in locals():
+            conn.close()
+
+if __name__ == "__main__":
+    main()
