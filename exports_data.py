@@ -25,3 +25,29 @@ def read_csv(file_path):
     
     return df
 
+# Função para criar a tabela no PostgreSQL
+def create_table(conn, df):
+    cursor = conn.cursor()
+    
+    # Gerando os tipos de colunas automaticamente
+    columns_with_types = []
+    for col in df.columns:
+        dtype = df[col].dtype
+        if dtype == 'int64':
+            pg_type = 'BIGINT'
+        elif dtype == 'float64':
+            pg_type = 'FLOAT'
+        else:
+            pg_type = 'VARCHAR(255)'
+        columns_with_types.append(f'"{col}" {pg_type}')
+    
+    create_table_sql = f"""
+    CREATE TABLE IF NOT EXISTS exp (
+        {', '.join(columns_with_types)}
+    );
+    """
+    
+    cursor.execute(create_table_sql)
+    conn.commit()
+    cursor.close()
+
