@@ -64,16 +64,23 @@ def insert_data(conn, df, data_type):
     
     # Preparando os dados para inserção
     output = StringIO()
-    df.to_csv(sep='\t', header=False, index=False, quoting=csv.QUOTE_NONE, escapechar='\\')
+    # Escrever os dados no buffer no formato que o PostgreSQL espera
+    df.to_csv(output, sep='\t', header=False, index=False, quoting=csv.QUOTE_NONE, escapechar='\\')
     output.seek(0)
     
     # Copiando os dados para o PostgreSQL
-    if data_type == 'E':
-        cursor.copy_from(output, 'export_data', null='')
-    elif data_type == 'I':
-        cursor.copy_from(output, 'import_data', null='')
-    conn.commit()
-    cursor.close()
+    try:
+        if data_type == 'E':
+            cursor.copy_expert("COPY export_data FROM STDIN WITH NULL AS ''", output)
+        elif data_type == 'I':
+            cursor.copy_expert("COPY import_data FROM STDIN WITH NULL AS ''", output)
+        conn.commit()
+        print(f"{len(df)} registros inseridos com sucesso!")
+    except Exception as e:
+        conn.rollback()
+        print(f"Erro ao inserir dados: {e}")
+    finally:
+        cursor.close()
 
 # Função principal
 def main():
