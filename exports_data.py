@@ -51,3 +51,17 @@ def create_table(conn, df):
     conn.commit()
     cursor.close()
 
+# Função para inserir dados no PostgreSQL
+def insert_data(conn, df):
+    cursor = conn.cursor()
+    
+    # Preparando os dados para inserção
+    output = StringIO()
+    df.to_csv(sep='\t', header=False, index=False, quoting=csv.QUOTE_NONE, escapechar='\\')
+    output.seek(0)
+    
+    # Copiando os dados para o PostgreSQL
+    cursor.copy_from(output, 'exp', null='')
+    conn.commit()
+    cursor.close()
+
