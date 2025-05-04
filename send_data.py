@@ -59,10 +59,17 @@ def create_table(conn, df, data_type):
     cursor.close()
 
 # Função para inserir dados no PostgreSQL
-def insert_data(conn, df, data_type):
+def insert_data(conn, df, data_type, clean_data):
     cursor = conn.cursor()
     
     # Preparando os dados para inserção
+    if clean_data == 'S':
+        if data_type == 'E':
+            cursor.execute("TRUNCATE TABLE export_data;")
+        elif data_type == 'I':
+            cursor.execute("TRUNCATE TABLE import_data;")
+        print("Tabela limpa com sucesso!")
+        conn.commit()
     output = StringIO()
     # Escrever os dados no buffer no formato que o PostgreSQL espera
     df.to_csv(output, sep='\t', header=False, index=False, quoting=csv.QUOTE_NONE, escapechar='\\')
@@ -88,6 +95,8 @@ def main():
     file_content = input("Digite o caminho do arquivo CSV: ")
 
     data_type = input("Os dados são de exportação (E) ou importação (I)? ").strip().upper()
+
+    clean_data = input("Deseja limpar os dados antes de inserir? (S/N): ").strip().upper()
     
     try:
         # Ler o CSV
@@ -103,7 +112,7 @@ def main():
         print("Tabela criada ou verificada com sucesso!")
         
         # Inserir dados
-        insert_data(conn, df, data_type)
+        insert_data(conn, df, data_type, clean_data)
         print("Dados inseridos com sucesso!")
         
     except Exception as e:
