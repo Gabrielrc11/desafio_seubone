@@ -1,1 +1,2 @@
-src/ncm_data/*.csv
+src/ncm_data/EXP*.csv
+src/ncm_data/IMP*.csv
