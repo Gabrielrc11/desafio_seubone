@@ -52,12 +52,18 @@ Ajuste estas configurações conforme necessário nos arquivos `send_data.py`, `
    ```bash
    python download_data.py
    ```
+
+   Os dados baixados irão para a pasta `./src/ncm_data/...`
+
    Este script permite baixar os dados de NCM do site oficial do governo.
 
 2. **Carregar dados para o PostgreSQL(Envie os dados de importação e exportação de 2020 e 2021)**:
    ```bash
    python send_data.py
    ```
+
+   Exemplo de caminho do csv `./src/ncm_data/EXP_2020.csv`
+
    Você será solicitado a fornecer o caminho do arquivo CSV e informar se os dados são de exportação (E) ou importação (I).
 
 3. **Enriquecer dados com descrições NCM (Execute apenas depois carregar todos os dados)**:
