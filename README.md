@@ -48,19 +48,19 @@ Ajuste estas configurações conforme necessário nos arquivos `send_data.py`, `
 
 ### Passos para Execução
 
-1. **Baixar dados NCM**:
+1. **Baixar dados NCM(Baixe os dados de importação e exportação de 2020 e 2021)**:
    ```bash
    python download_data.py
    ```
    Este script permite baixar os dados de NCM do site oficial do governo.
 
-2. **Carregar dados para o PostgreSQL**:
+2. **Carregar dados para o PostgreSQL(Envie os dados de importação e exportação de 2020 e 2021)**:
    ```bash
    python send_data.py
    ```
    Você será solicitado a fornecer o caminho do arquivo CSV e informar se os dados são de exportação (E) ou importação (I).
 
-3. **Enriquecer dados com descrições NCM**:
+3. **Enriquecer dados com descrições NCM (Execute apenas depois carregar todos os dados)**:
    ```bash
    python ncm_data.py
    ```
