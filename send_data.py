@@ -43,18 +43,34 @@ def create_table(conn, df, data_type):
             pg_type = 'VARCHAR(255)'
         columns_with_types.append(f'"{col}" {pg_type}')
     
+    # Identificar os nomes exatos das colunas de chave no DataFrame
+    key_column_names = ['CO_ANO', 'CO_MES', 'CO_NCM', 'CO_UNID', 'CO_PAIS', 'SG_UF_NCM', 'CO_VIA', 'CO_URF']
+    existing_key_columns = []
+    
+    for key_col in key_column_names:
+        # Procurar a coluna no DataFrame (pode ser maiúscula, minúscula ou mista)
+        matching_cols = [col for col in df.columns if col.upper() == key_col.upper()]
+        if matching_cols:
+            existing_key_columns.append(f'"{matching_cols[0]}"')
+        
+    # Somente incluir a constraint se todas as colunas da chave existirem
+    constraint_clause = ""
+    if len(existing_key_columns) == len(key_column_names):
+        constraint_name = "export_data_unique" if data_type == 'E' else "import_data_unique"
+        constraint_clause = f", CONSTRAINT {constraint_name} UNIQUE ({', '.join(existing_key_columns)})"
+    
     if data_type == 'E':
         create_table_sql = f"""
         CREATE TABLE IF NOT EXISTS export_data (
-            {', '.join(columns_with_types)},
-            CONSTRAINT export_data_unique UNIQUE (CO_ANO, CO_MES, CO_NCM, CO_UNID, CO_PAIS, SG_UF_NCM, CO_VIA, CO_URF)
+            {', '.join(columns_with_types)}
+            {constraint_clause}
         );
         """
     if data_type == 'I':
         create_table_sql = f"""
         CREATE TABLE IF NOT EXISTS import_data (
-            {', '.join(columns_with_types)},
-            CONSTRAINT import_data_unique UNIQUE (CO_ANO, CO_MES, CO_NCM, CO_UNID, CO_PAIS, SG_UF_NCM, CO_VIA, CO_URF)
+            {', '.join(columns_with_types)}
+            {constraint_clause}
         );
         """
     
