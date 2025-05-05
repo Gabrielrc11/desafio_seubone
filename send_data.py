@@ -123,25 +123,16 @@ def check_existing_data(conn, df, data_type):
     return new_records.drop(columns=['key_values'])
 
 # Função para inserir dados no PostgreSQL
-def insert_data(conn, df, data_type, clean_data):
+def insert_data(conn, df, data_type):
     cursor = conn.cursor()
     
-    # Preparando os dados para inserção
-    if clean_data == 'S':
-        if data_type == 'E':
-            cursor.execute("TRUNCATE TABLE export_data;")
-        elif data_type == 'I':
-            cursor.execute("TRUNCATE TABLE import_data;")
-        print("Tabela limpa com sucesso!")
-        conn.commit()
-    else:
-        # Verificar dados existentes antes de inserir
-        df = check_existing_data(conn, df, data_type)
-        if df is None:
-            return  # Todos os dados já existem
-        elif len(df) == 0:
-            print("Nenhum novo registro para inserir.")
-            return
+    # Verificar dados existentes antes de inserir
+    df = check_existing_data(conn, df, data_type)
+    if df is None:
+        return  # Todos os dados já existem
+    elif len(df) == 0:
+        print("Nenhum novo registro para inserir.")
+        return
     
     output = StringIO()
     # Escrever os dados no buffer no formato que o PostgreSQL espera
@@ -171,11 +162,6 @@ def main():
     while data_type not in ['E', 'I']:
         print("Por favor, digite 'E' para exportação ou 'I' para importação.")
         data_type = input("Os dados são de exportação (E) ou importação (I)? ").strip().upper()
-
-    clean_data = input("Deseja limpar os dados antes de inserir? (S/N): ").strip().upper()
-    while clean_data not in ['S', 'N']:
-        print("Por favor, digite 'S' para sim ou 'N' para não.")
-        clean_data = input("Deseja limpar os dados antes de inserir? (S/N): ").strip().upper()
     
     try:
         # Ler o CSV
@@ -191,7 +177,7 @@ def main():
         print("Tabela criada ou verificada com sucesso!")
         
         # Inserir dados (com verificação de duplicados)
-        insert_data(conn, df, data_type, clean_data)
+        insert_data(conn, df, data_type)
         
     except Exception as e:
         print(f"Erro: {e}")
