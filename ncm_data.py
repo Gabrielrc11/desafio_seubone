@@ -93,7 +93,7 @@ def update_table_with_ncm(conn, table_name, ncm_mapping, temp_table_suffix=""):
         cursor.close()
 
 def main():
-    ncm_file_path = input("Caminho do arquivo CSV com mapeamento NCM: ")
+    ncm_file_path = "./src/ncm_data/NCM.csv"
     
     try:
         ncm_mapping = read_ncm_mapping(ncm_file_path)
